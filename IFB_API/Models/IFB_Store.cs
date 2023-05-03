@@ -12,7 +12,6 @@ namespace IFB_API.Models
         {
         }
 
-        public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<OrderItem> OrderItems { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
@@ -20,22 +19,6 @@ namespace IFB_API.Models
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.LastName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.FirstName)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.City)
-                .IsUnicode(false);
-
-            modelBuilder.Entity<Customer>()
-                .Property(e => e.Country)
-                .IsUnicode(false);
-
             modelBuilder.Entity<Item>()
                 .Property(e => e.UPC)
                 .HasPrecision(18, 0);

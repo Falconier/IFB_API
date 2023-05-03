@@ -35,51 +35,74 @@ namespace IFB_API.Controllers
             return Ok(order);
         }
 
-        // PUT: api/Orders/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutOrder(decimal id, Order order)
+        //// PUT: api/Orders/5
+        //[ResponseType(typeof(void))]
+        //public IHttpActionResult PutOrder(decimal id, Order order)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    if (id != order.OrderId)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    db.Entry(order).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        db.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!OrderExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return StatusCode(HttpStatusCode.NoContent);
+        //}
+
+        // POST: api/NewOrder
+        [HttpPost]
+        [ResponseType(typeof(Order))]
+        [Route("NewOrder")]
+        public IHttpActionResult PostOrder(int? OrderId = null, int? CustomerId = null)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            if (id != order.OrderId)
+            Order new_order = new Order();
+            if(OrderId != null)
             {
-                return BadRequest();
-            }
-
-            db.Entry(order).State = EntityState.Modified;
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
+                if(db.Orders.Where(o => o.OrderId == OrderId).Count() != 0)
                 {
-                    return NotFound();
+                    return Conflict();
                 }
                 else
                 {
-                    throw;
+                    new_order.OrderId = (decimal) OrderId;
                 }
             }
+            else
+            {
+                decimal new_id = db.Orders.Max(o => o.OrderId) + (decimal) 1;
+                new_order.OrderId = new_id;
+            }
 
-            return StatusCode(HttpStatusCode.NoContent);
-        }
+            new_order.CustomerId = CustomerId;
 
-        // POST: api/Orders
-        [ResponseType(typeof(Order))]
-        public IHttpActionResult PostOrder(Order order)
-        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            db.Orders.Add(order);
+            db.Orders.Add(new_order);
 
             try
             {
@@ -87,7 +110,7 @@ namespace IFB_API.Controllers
             }
             catch (DbUpdateException)
             {
-                if (OrderExists(order.OrderId))
+                if (OrderExists(new_order.OrderId))
                 {
                     return Conflict();
                 }
@@ -97,7 +120,7 @@ namespace IFB_API.Controllers
                 }
             }
 
-            return CreatedAtRoute("DefaultApi", new { id = order.OrderId }, order);
+            return CreatedAtRoute("DefaultApi", new { id = new_order.OrderId }, new_order);
         }
 
         // DELETE: api/Orders/5
